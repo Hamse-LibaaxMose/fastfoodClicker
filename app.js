@@ -113,6 +113,7 @@ function gameWinner() {
     playBtn.removeAttribute("disabled")
     stopBtn.setAttribute("disabled", true)
     document.querySelector("#sound_dreams").pause()
+    document.querySelector("#sound_success").play()
     playBtn.addEventListener("click", startGame)
 }
 
@@ -123,6 +124,7 @@ function gameOver() {
     stopBtn.setAttribute("disabled", true)
     document.querySelector("#sound_dreams").pause()
     playBtn.addEventListener("click", startGame)
+    document.querySelector("#sound_tada").play()
 }
 
 function resetGame() {
