@@ -126,6 +126,13 @@ body {
 .button_stop:active{
     transform: translateY(4px);
 }
+
+.button_play:disabled,
+.button_stop:disabled {
+    background-color: gray;
+    opacity: 0.5;
+    cursor:not-allowed;
+}
 .button_stop{
     border: 0px solid transparent;
     width: 210px;
