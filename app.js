@@ -4,6 +4,8 @@ const fastFood = document.querySelector(".burger")
 const vegi = document.querySelector(".green_vegi")
 const pointCounter = document.querySelector(".point_counter")
 const timerCounter = document.querySelector(".timer_counter")
+const gameOverEl = document.querySelector(".game_over")
+const winnerEl = document.querySelector(".winner")
 window.addEventListener("load", setupEvents)
 
 let point = 0;
@@ -11,6 +13,9 @@ let posFastFood = 0;
 let aniReqFastFood;
 let timer;
 let timeInterval;
+let isGameOver
+let isWinner;
+let delayFood;
 
 function startTimer() {
     timer = 60;
@@ -27,6 +32,23 @@ function stopTimer() {
 
 function fastFoodFalling() {
     posFastFood += 2
+    if (point < 0) {
+        cancelAnimationFrame(aniReqFastFood)
+        isGameOver = true
+        stopTimer()
+        gameOver()
+        return
+    }
+
+    if(point >= 5){
+        isWinner = true
+        console.log("we have a winner")
+        gameWinner()
+        stopTimer()
+        cancelAnimationFrame(aniReqFastFood)
+        return
+    }
+
     if (posFastFood > 545) {
         posFastFood = 0;
         point--
@@ -44,6 +66,20 @@ let aniReqVegiFood;
 
 function vegiFoodFalling() {
     posVegi += 2
+    if (point < 0) {
+        cancelAnimationFrame(aniReqVegiFood)
+        isGameOver = true
+        return
+    }
+
+    if(point >= 5){
+        isWinner = true
+        console.log("we have a winner")
+        winnerEl.style.display = "block"
+        cancelAnimationFrame(aniReqVegiFood)
+        return
+    }
+
     if (posVegi > 545) {
         posVegi = 0
         point++
@@ -57,7 +93,6 @@ function vegiFoodFalling() {
 function stopFalling(e) {
     if (e.target.className === "burger") {
         cancelAnimationFrame(aniReqFastFood)
-        // fastFood.offsetHeight
         posFastFood = 0
         fastFood.style.transform = `translateY(0px)`
         fastFoodFalling()
@@ -72,16 +107,44 @@ function stopFalling(e) {
     console.log(e.target.className)
 }
 
+function gameWinner() {
+    console.log("in here")
+    winnerEl.style.display = "block"
+    playBtn.removeAttribute("disabled")
+    stopBtn.setAttribute("disabled", true)
+    document.querySelector("#sound_dreams").pause()
+    playBtn.addEventListener("click", startGame)
+}
+
+function gameOver() {
+    console.log("in here")
+    gameOverEl.style.display = "block"
+    playBtn.removeAttribute("disabled")
+    stopBtn.setAttribute("disabled", true)
+    document.querySelector("#sound_dreams").pause()
+    playBtn.addEventListener("click", startGame)
+}
+
 function resetGame() {
     document.querySelector("#sound_dreams").currentTime = 0
+    gameOverEl.style.display = "none"
+    winnerEl.style.display = "none"
+    playBtn.removeAttribute("disabled")
+    stopBtn.setAttribute("disabled", true)
+    point = 0
+    posFastFood = 0
+    posVegi = 0
+    pointCounter.innerHTML = point
+    fastFood.style.transform = `translateY(0px)`
+    vegi.style.transform = `translateY(0px)`
 }
 
 function stopGame() {
     document.querySelector("#sound_dreams").pause()
-    playBtn.removeAttribute("disabled")
-    stopBtn.setAttribute("disabled", true)
-
+    resetGame()
+    
     stopTimer()
+
     cancelAnimationFrame(aniReqFastFood)
     posFastFood = 0
     fastFood.style.transform = `translateY(0px)`
@@ -92,13 +155,15 @@ function stopGame() {
 
     point = 0;
     pointCounter.innerHTML = point
+    stopBtn.removeEventListener("click", stopGame)
     playBtn.addEventListener("click", startGame)
+    clearTimeout(delayFood)
 }
 
-function startGame() {
+async function startGame() {
     resetGame()
     startTimer()
-    document.querySelector("#sound_dreams").play()
+    await document.querySelector("#sound_dreams").play()
     playBtn.setAttribute("disabled", true)
     stopBtn.removeAttribute("disabled")
     fastFood.addEventListener("click", stopFalling)
@@ -108,7 +173,7 @@ function startGame() {
     playBtn.removeEventListener("click", startGame)
 
     fastFoodFalling()
-    setTimeout(vegiFoodFalling, 2000)
+    delayFood = setTimeout(vegiFoodFalling, 2000)
 
 }
 
